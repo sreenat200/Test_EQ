@@ -19,7 +19,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 EQ_MODEL_NAME = os.getenv('EQ_MODEL_NAME', 'sreenathsree1578/Bert_fine_tuned_eq')
 EQ_FALLBACK_MODEL_NAME = os.getenv('EQ_FALLBACK_MODEL_NAME', 'distilbert-base-uncased')
 
-ALLOWED_HOSTS = ['test-eq.onrender.com']
+ALLOWED_HOSTS = ['test-eq.onrender.com','https://test-eq.onrender.com']
 
 
 
