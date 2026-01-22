@@ -1,5 +1,10 @@
 from pathlib import Path
 import os
+import tempfile
+import atexit
+import pymysql
+pymysql.install_as_MySQLdb()
+
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,13 +66,44 @@ WSGI_APPLICATION = 'eq_assessment.wsgi.application'
 
 
 # Database
+# Handle SSL Certificate from environment
+ssl_ca_path = os.getenv('DB_SSL_CA')
+ssl_ca_content = os.getenv('DB_SSL_CA_CONTENT')
+
+if ssl_ca_content:
+    # Create a temporary file to store the CA certificate
+    tf = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pem', encoding='utf-8')
+    # Convert escaped newlines back to actual newlines
+    tf.write(ssl_ca_content.replace('\\n', '\n'))
+    tf.close()
+    ssl_ca_path = tf.name
+    
+    # Ensure cleanup on exit
+    def cleanup_ssl_cert():
+        try:
+            if os.path.exists(ssl_ca_path):
+                os.unlink(ssl_ca_path)
+        except Exception:
+            pass
+    atexit.register(cleanup_ssl_cert)
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'instance' / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
+        'OPTIONS': {
+            'ssl': {
+                'ssl-mode': 'REQUIRED',
+                'ca': ssl_ca_path,
+            },
+        },
     }
 }
+
 
 
 # Password validation
