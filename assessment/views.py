@@ -7,6 +7,7 @@ import json
 eq_model = AdvancedEQAssessmentModel()
 
 def index(request):
+    
     request.session.flush()
     try:
         AssessmentResult.objects.all().delete()
@@ -16,6 +17,7 @@ def index(request):
 
 @require_http_methods(["POST"])
 def start_assessment(request):
+
     age = request.POST.get('age')
     gender = request.POST.get('gender')
     profession = request.POST.get('profession')
@@ -39,6 +41,7 @@ def start_assessment(request):
 
 @require_http_methods(["POST"])
 def submit_assessment(request):
+
     questions = request.session.get('questions', {})
     user_data = request.session.get('user_data', {})
     scenario = request.session.get('scenario', "")
